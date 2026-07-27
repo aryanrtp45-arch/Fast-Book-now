@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Site Verification -->
+    <meta name="google-site-verification" content="f0b44c1f1865e562" />
+    
+    <title>Surprise For Aryan!</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Confetti Library for Grand Finale -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #0d0d1a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        /* Stages Setup */
+        .stage {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .stage.active {
+            display: flex;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* The Box CSS */
+        .box-wrapper {
+            position: relative;
+            cursor: pointer;
+            margin-top: 40px;
+            transition: transform 0.3s;
+        }
+
+        .box-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        .instruction {
+            color: #00ffcc;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px #00ffcc; }
+            50% { opacity: 0.5; text-shadow: none; }
+        }
+
+        /* Box Design */
+        .box {
+            position: relative;
+            width: 150px;
+            height: 120px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Different Colors for Different Boxes */
+        .box-1 { background: linear-gradient(135deg, #1e3c72, #2a5298); box-shadow: 0 0 30px #2a5298; }
+        .box-2 { background: linear-gradient(135deg, #8E2DE2, #4A00E0); box-shadow: 0 0 30px #8E2DE2; }
+        .box-3 { background: linear-gradient(135deg, #f12711, #f5af19); box-shadow: 0 0 40px #f5af19; }
+
+        .lid {
+            position: absolute;
+            top: -20px;
+            width: 170px;
+            height: 40px;
+            border-radius: 5px;
+            z-index: 2;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .box-1 .lid { background: #3a6cd4; border-bottom: 4px solid #1c3666; }
+        .box-2 .lid { background: #a84cf0; border-bottom: 4px solid #520ebd; }
+        .box-3 .lid { background: #ffd000; border-bottom: 4px solid #cc4400; }
+
+        /* Ribbon */
+        .ribbon-vertical {
+            position: absolute;
+            width: 25px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1;
+        }
+        
+        .lid .ribbon-vertical {
+            height: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+
+        /* Animations for Clicking */
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0); }
+            20% { transform: translateX(-10px) rotate(-5deg); }
+            40% { transform: translateX(10px) rotate(5deg); }
+            60% { transform: translateX(-10px) rotate(-5deg); }
+            80% { transform: translateX(10px) rotate(5deg); }
+        }
+
+        .open .lid {
+            transform: translateY(-120px) rotate(15deg);
+            opacity: 0;
+        }
+
+        /* Hidden Message that pops up */
+        .message-content {
+            opacity: 0;
+            transform: translateY(20px);
+            margin-top: 40px;
+            transition: all 0.8s ease;
+            max-width: 400px;
+        }
+
+        .open .message-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message-content h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .message-content p {
+            font-size: 1.1rem;
+            color: #d1d1e0;
+            margin-bottom: 20px;
+        }
+
+        /* Next Button */
+        .next-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+            transition: 0.3s;
+        }
+
+        .next-btn:hover {
+            background: #00ffcc;
+            box-shadow: 0 5px 25px rgba(0, 255, 204, 0.5);
+            transform: scale(1.05);
+        }
+
+        /* Final Stage Special Text */
+        .final-text {
+            font-size: 3.5rem;
+            background: -webkit-linear-gradient(#ffdd00, #ff0055);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 20px rgba(255,0,0,0.3);
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .final-text { font-size: 2.5rem; }
+            .message-content h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STAGE 1: Box 1 -->
+    <div id="stage-1" class="stage active">
+        <h2 class="instruction">Tap the Box 🎁</h2>
+        
+        <div class="box-wrapper" id="box-wrap-1" onclick="openBox(1)">
+            <div class="box box-1">
+                <div class="lid"><div class="ribbon-vertical"></div></div>
+                <div class="ribbon-vertical"></div>
+            </div>
+        </div>
+
+        <div class="message-content" id="msg-1">
+            <h2 style="color: #66b3ff;">Wait a minute...</h2>
+            <p>Aryan, tumhe kya laga bas normal sa Happy Birthday bol ke chhod dunga? Aage dekho...</p>
+            <button class="next-btn" onclick="nextStage(2)">Next Surprise ➔</button>
+        </div>
+    </div>
+
+    <!-- STAGE 2: Box 2 -->
+    <div id="stage-2" class="stage">
+        <h2 class="instruction">Tap Again ✨</h2>
+        
+        <div class="box-wrapper" id="box-wrap-2" onclick="openBox(2)">
+            <div class="box box-2">
+                <div class="lid"><div class="ribbon-vertical"></div></div>
+                <div class="ribbon-vertical"></div>
+            </div>
+        </div>
+
+        <div class="message-content" id="msg-2">
+            <h2 style="color: #d896ff;">Level Up!</h2>
+            <p>Party abhi shuru bhi nahi hui hai bhai! Asli dhamaka toh is aakhiri dabbe mein hai. Ready?</p>
+            <button class="next-btn" onclick="nextStage(3)">Final Unlock 🔓</button>
+        </div>
+    </div>
+
+    <!-- STAGE 3: Final Box -->
+    <div id="stage-3" class="stage">
+        <h2 class="instruction" style="color: #ffcc00;">The Grand Finale 👑 Tap It!</h2>
+        
+        <div class="box-wrapper" id="box-wrap-3" onclick="openBox(3)">
+            <div class="box box-3">
+                <div class="lid"><div class="ribbon-vertical"></div></div>
+                <div class="ribbon-vertical"></div>
+            </div>
+        </div>
+
+        <div class="message-content" id="msg-3">
+            <h1 class="final-text">HAPPY BIRTHDAY<br>ARYAN!</h1>
+            <p style="font-size: 1.3rem; color: white;">Bhai ko janamdin ki bohot bohot shubhkamnayein! Hamesha aise hi chamakte raho aur aage badhte raho. Let's Party! 🎂🥂🎉</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to handle Box Click
+        function openBox(boxNumber) {
+            const boxWrapper = document.getElementById(`box-wrap-${boxNumber}`);
+            
+            // Step 1: Add shaking animation
+            boxWrapper.classList.add('shake');
+            
+            // Step 2: After shake stops, open the lid and show message
+            setTimeout(() => {
+                boxWrapper.classList.remove('shake');
+                boxWrapper.classList.add('open');
+                
+                // If it's the final box, trigger fireworks (confetti)
+                if(boxNumber === 3) {
+                    fireConfetti();
+                }
+            }, 600); // Wait for 600ms (shake duration)
+            
+            // Disable click after opening once
+            boxWrapper.onclick = null;
+            boxWrapper.style.cursor = 'default';
+        }
+
+        // Function to move to the next box stage
+        function nextStage(nextBoxNumber) {
+            // Hide all stages
+            document.querySelectorAll('.stage').forEach(stage => {
+                stage.classList.remove('active');
+            });
+            
+            // Show the next stage
+            document.getElementById(`stage-${nextBoxNumber}`).classList.add('active');
+        }
+
+        // Grand Finale Confetti Blast Function
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                // Launch from both sides
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>
